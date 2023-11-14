@@ -8,7 +8,7 @@ forward <file.txt>
 
 Outputs:
 
-file.txt.enc - word-based forward frequencies with low frequency word replacement, compressed using the arithmetic encoder;
+**file.txt.enc** - word-based forward frequencies with low frequency word replacement, compressed using the arithmetic encoder;
 
 file.txt.frq - compressed frequency table;
 
