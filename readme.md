@@ -1,7 +1,7 @@
 The code implements word-based forward compression with low frequency word replacement and frequency table compression.
 
 Compile:
-**g++ *.cpp -o forward**
+g++ *.cpp -o forward
 
 Run:
 **forward <file.txt>**
