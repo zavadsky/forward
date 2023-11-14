@@ -29,17 +29,17 @@ int main(int argc, char** argv) {
     if(argc<2)
         cout<<"Incorrect number of command line arguments.";
     else
-        if(argc==2 || argv[3]=="-r") {
+        if(argc==2 || argv[3]=="-r") { // Forward Replacement Arithmetic
             string ifname(argv[1]);
-            WordTextReplacement w(ifname);
+            WordTextReplacement w(ifname);  // Pre-process the text
             std::ofstream out(ifname+".enc", std::ios::binary);
             BitOutputStream bout(out);
-            ArithmeticEncoderReplacement enc(&w,bout);
+            ArithmeticEncoderReplacement enc(&w,bout); // Create the arithmetic encoder
             enc.encode(); cout<<"to the file "+ifname+".enc"<<endl;
             bout.finish();
-            w.output_dic("dic_"+ifname);
-            RMD r({0,2,29},27,10000); //Generating the set of the Reverse MD-code codewords
-            w.CompressFrequencyTable(r,ifname+".frq");
+            w.output_dic("dic_"+ifname); // Print the dictionary to the file
+            RMD r({0,2,29},27,10000); //Generating the set of the RMD(1,3-inf) codewords
+            w.CompressFrequencyTable(r,ifname+".frq"); // Compress the frequency table and print it to the file
         }
 	system("pause");
 }
