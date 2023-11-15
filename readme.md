@@ -5,8 +5,11 @@ g++ *.cpp -o forward
 
 **Run:**
 forward <file.txt> [option]
+
 [option]
+
 -r  -  Word-based forward compression + low frequency word replacement and frequency table compression.
+
 -f  -  Word-based forward compression.
 
 **Outputs:**
