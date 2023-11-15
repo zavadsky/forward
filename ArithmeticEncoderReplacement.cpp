@@ -16,38 +16,34 @@ using std::uint32_t;
 using namespace std;
 
 
-int arithm_forward(std::vector<std::uint64_t> freq_vector,int maxSymbol,std::string inputFile,std::string outputFile,map<string,int> rmd_map_sorted) {
+ArithmeticEncoderForward::ArithmeticEncoderForward(WordBasedText* w,BitOutputStream &out):
+    ArithmeticEncoder(32, out) {
+    freqs = new SimpleFrequencyTable(w->Frequencies);
+    text=w;
+    cout<<endl<<"Arithmetic encoder initialized."<<endl;
+}
 
+
+int ArithmeticEncoderForward::encode() {
 	// Perform file compression
-	std::ifstream in(inputFile);
-	std::ofstream out(outputFile, std::ios::binary);
-	BitOutputStream bout(out);
 	std::string word;
+	int maxSymbol=text->getMaxSymb();
 	try {
-
-		SimpleFrequencyTable freqs(freq_vector);
-		ArithmeticEncoder enc(32, bout);
-		while(! in.eof()) {
-			// Read and encode one byte
-			int symbol;
-			in>>word;
-            if(rmd_map_sorted.find(word)==rmd_map_sorted.end())
-                throw std::logic_error("Word not found");
-            symbol=rmd_map_sorted[word];
-
-			if (symbol == std::char_traits<char>::eof())
-				break;
-			if (!(0 <= symbol && symbol <= maxSymbol))
-				throw std::logic_error("Assertion error");
-			enc.write(freqs, static_cast<uint32_t>(symbol));
-            freqs.decrement(static_cast<uint32_t>(symbol)); //Forward-looking compression. Comment this line to make static
-			//freqs.increment(static_cast<uint32_t>(symbol));
+        text->text_rewind();
+		while(! text->eof()) {
+			word=text->get_word();
+            if(word=="")
+                break;
+			int symbol=text->rmd_map_sorted[word];
+            if (symbol == std::char_traits<char>::eof())
+                break;
+            if (!(0 <= symbol && symbol <= maxSymbol))
+                throw std::logic_error("Assertion error");
+            write(*freqs, static_cast<uint32_t>(symbol));
+            freqs->decrement(static_cast<uint32_t>(symbol));
 		}
-
-		enc.write(freqs, maxSymbol);  // EOF
-		enc.finish();  // Flush remaining code bits
-		bout.finish();
-		cout<<"Arithmetic encoding completed."<<endl;
+		finish();  // Flush remaining code bits
+		cout<<"Arithmetic encoding completed ";
 		return EXIT_SUCCESS;
 
 	} catch (const char *msg) {
@@ -97,8 +93,6 @@ vector<uint64_t> repl_freq;
         it->second+=i;
     for(auto it=K.begin();it!=K.end();it++)
         repl_freq.push_back(it->second);
-/*    for (uint64_t i: repl_freq)
-        std::cout << i << ' ';*/
     freqs = new SimpleFrequencyTable(repl_freq);
     text=w;
     cout<<endl<<"Arithmetic encoder with replacement initialized."<<endl;

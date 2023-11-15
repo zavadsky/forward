@@ -1,3 +1,4 @@
+#include <iterator>
 #include "include\RMD.h"
 
 const int MAX_LEN=36,MAX_k=50;
@@ -51,27 +52,38 @@ RMD::~RMD()
 
 // writes a codeword to the end of a code bitstream
 // x is a codeword aligned to the right edge of a 32-bit word
-void RMD::flush_to_byte_rmd(unsigned int x,unsigned char* out) {
+void RMD::flush_to_byte_rmd(uint64_t x) {
 int k(0),p;
 unsigned int j;
 // Find the leftmost '1' bit in the last byte of a code. Codeword starts 1 bit left to it
 	for(j=1<<(t-1),p=t-1;!(x&j) && j;j>>=1,p--);
 	for(j<<=1;j>0;j>>=1) {
 		if(j&x)
-			out[cur_byte]|=(1<<cur_bit);
+			cur_value|=(1<<cur_bit);
 		cur_bit=cur_bit==0?7:cur_bit-1;
-		if(cur_bit==7)
+		if(cur_bit==7) {
+            buffer.push_back(cur_value);
+			cur_value=0;
 			cur_byte++;
+		}
 	}
 }
 
-int RMD::encode_rmd(vector<int> ranks,unsigned char* out) {
+int RMD::encode_rmd(vector<uint64_t> ranks) {
 int i;
 	cur_byte=0; cur_bit=7;
+	buffer.clear();
 	for(auto it=ranks.begin();it!=ranks.end();it++) {
-		flush_to_byte_rmd(rmd[*it],out); // write current codeword to the end of a code bitstream
+		flush_to_byte_rmd(rmd[*it]); // write current codeword to the end of a code bitstream
 	}
 	return cur_byte*8+(7-cur_bit);
+}
+
+void RMD::rmd_to_file(string fname) {
+    std::ofstream fout(fname, std::ios::binary);
+    for(auto it=buffer.begin();it!=buffer.end();it++)
+        fout<<*it;
+    fout.close();
 }
 
 
@@ -105,7 +117,6 @@ void RMD::code_output(int n) {
 
     FILE* file=fopen("code.txt","w");
     for(int i=0;i<n;i++)
-        //fprintf(file,"\n%d="BYTE_TO_BINARY_PATTERN,i,BYTE_TO_BINARY(rmd[i]));
         fprintf(file,"\n%d=%d=" BYTE_TO_BINARY_PATTERN,i,rmd[i],BYTE_TO_BINARY(rmd[i]));
     fclose(file);
 }

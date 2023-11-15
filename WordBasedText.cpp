@@ -4,6 +4,7 @@ WordBasedText::WordBasedText(string fname)
 {
     std::ifstream file(fname);
     buffer << file.rdbuf();
+    word_frequences();
 }
 
 string WordBasedText::get_word(){
@@ -32,7 +33,6 @@ int size=0,i=0;
 	}
 	cout<<endl<<"Input file processed. <word,frequency> map buit.\n";
 	// Create the multimap <frequency,word> consisting all different words - freq_rmd
-multimap<int,string> :: iterator it1,it3;
 	for(auto it=wf_map.begin();it!=wf_map.end();it++,diff_words++) {
 		freq_rmd.insert(make_pair(it->second,it->first));
 		// Calculate Shannon entropy
@@ -48,9 +48,10 @@ int prev_f=0;
     }
 	// Create 1) the map <word,index> which maps words of text to integers according to descending order of their frequences;
 	// 2) ordered dictionary Dict_rmd; 3) vector of Frequencies of all unique words; 4) vector of different Frequencies DiffFreq
-    int j=MaxF;
-    int frq=0;
-    NFreq=0;
+int j=MaxF;
+int frq=0;
+NFreq=0;
+multimap<int,string> :: iterator it1;
 	for(it1=freq_rmd.end(),i=0;it1!=freq_rmd.begin();i++) {
         it1--;
         if(it1->first!=frq) {
@@ -62,7 +63,7 @@ int prev_f=0;
                 j--;
             }
         }
-		rmd_map_sorted.insert(make_pair(it1->second,i));//<word of text,number>
+		rmd_map_sorted.insert(make_pair(it1->second,i)); //insert first element from freq_rmd map
 		Dict_rmd.push_back(it1->second);
 		Frequencies.push_back(it1->first);
 	}
@@ -73,13 +74,18 @@ int prev_f=0;
 	return size;
 }
 
+void WordBasedText::output_dic_sorted(string fname) {
+ofstream ofile(fname);
+    for(auto it=wf_map.begin();it!=wf_map.end();it++)
+        ofile<<it->first<<" ";
+}
+
 WordBasedText::~WordBasedText()
 {
     //dtor
 }
 
 WordTextReplacement::WordTextReplacement(string s):WordBasedText(s) {
-    word_frequences();
     int pos=diff_words;
     //wordsF is the array consisting of numbers of words of particular frequency
 	for(int j=1;j<MaxF;j++) {
@@ -117,8 +123,8 @@ string word;
     cout<<endl<<"Dictionary output to the file "<<fname<<endl;
 }
 
-vector<int> WordBasedText::calc_f_deltas(int b) {
-    vector<int> Freq_deltas;
+vector<uint64_t> WordBasedText::calc_f_deltas(int b) {
+    vector<uint64_t> Freq_deltas;
     Freq_deltas.push_back(b);
     Freq_deltas.push_back(Frequencies[0]);
     int i,m;
@@ -140,20 +146,27 @@ vector<int> WordBasedText::calc_f_deltas(int b) {
 
 void WordBasedText::CompressFrequencyTable(RMD r,string fname) {
     int deltas_min=1000000,deltas_minN;
-    unsigned char out[FTableSize];
     for(int N=NFreq/2-20;N<NFreq/2+20;N++) {
-        vector<int> f=calc_f_deltas(N);
-        int bit_size=r.encode_rmd(f,out);
+        vector<uint64_t> f=calc_f_deltas(N);
+        int bit_size=r.encode_rmd(f);
         if(bit_size<deltas_min) {
             deltas_min=bit_size;
             deltas_minN=N;
         }
     }
-    vector<int> f=calc_f_deltas(deltas_minN);
-    int bit_size=r.encode_rmd(f,out);
+    vector<uint64_t> f=calc_f_deltas(deltas_minN);
+    int bit_size=r.encode_rmd(f);
     cout<<endl<<"Size of compressed frequencies="<<(int)bit_size/8<<" bytes."<<endl;
     cout<<"Compressed frequencies saved in the file "<<fname<<endl<<endl;
-    std::ofstream fout(fname, std::ios::binary);
-    fout.write((const char*)out,r.code_size());
-    fout.close();
+    r.rmd_to_file(fname);
+}
+
+void WordBasedText::EncodeFrequencyTable(RMD r,string fname) {
+vector<uint64_t> freqs_sorted;
+     for(auto it=wf_map.begin();it!=wf_map.end();it++)
+        freqs_sorted.push_back(it->second-1);
+    int bit_size=r.encode_rmd(freqs_sorted);
+    cout<<endl<<"Size of compressed frequencies="<<(int)bit_size/8<<" bytes."<<endl;
+    cout<<"Compressed frequencies saved in the file "<<fname<<endl<<endl;
+    r.rmd_to_file(fname);
 }
