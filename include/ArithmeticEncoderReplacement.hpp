@@ -23,3 +23,12 @@ public:
     ArithmeticEncoderReplacement(WordTextReplacement*,BitOutputStream&);
     int encode();
 };
+
+class ArithmeticEncoderForward : public ArithmeticEncoder {
+private:
+    SimpleFrequencyTable* freqs;
+    WordBasedText* text;
+public:
+    ArithmeticEncoderForward(WordBasedText*,BitOutputStream&);
+    int encode();
+};
