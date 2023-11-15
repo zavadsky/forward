@@ -4,6 +4,7 @@ The code implements word-based forward compression.
 g++ *.cpp -o forward
 
 **Run:**
+
 forward <file.txt> [option]
 
 [option]
