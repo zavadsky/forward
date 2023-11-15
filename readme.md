@@ -7,7 +7,7 @@ g++ *.cpp -o forward
 
 forward <file.txt> [option]
 
-[option]
+[option] = -r | -f
 
 -r  -  Word-based forward compression + low frequency word replacement and frequency table compression.
 
