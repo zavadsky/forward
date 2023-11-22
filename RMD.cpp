@@ -1,32 +1,30 @@
 #include <iterator>
 #include "include\RMD.h"
 
-const int MAX_LEN=36,MAX_k=50;
+const int MAX_LEN=50,MAX_k=50,Lmax=44;
 int nlk[MAX_LEN][MAX_k]; // array used in the decoding
-int nl[MAX_LEN+8]; // nl[i] = number of codewords of length i
+int nl[MAX_LEN]; // nl[i] = number of codewords of length i
 
 // 1) Generating the Reverse Multi-Delimiter codewords in rmd array. 2) Filling nlk array for the decoding.
 // The parameters m1,m2,... of a code are all integers not present in the array k
 // k - numbers which do not form delimiters 01^k, the last = biggest delimiter+1
-RMD::RMD(vector<int> k,int Lmax,int N) {
+RMD::RMD(vector<int> k,int N) {
 int kmax=k.size(),Lmin; //number of elements in the array k; length of the shortest codeword
 for(Lmin=0;Lmin<kmax && k[Lmin+1]==k[Lmin]+1;Lmin++);
     Lmin+=2;
 int L,n,i,j,L1_long=-1,L1_long_prev=-1,t=Lmin-1;
-int seq=0,s=0;
-    if(Lmax>MAX_LEN-8)
-        throw std::domain_error("Lmax is too big");
+uint64_t seq=0,s=0;
+    if(N>((uint64_t)1<<Lmax))
+        throw std::domain_error("Number of codewords is too big");
     kmax=k.size();
-    for(L=Lmin,n=0;L<Lmax && n<=N;L++) {
+    for(L=Lmin,n=0;n<=N;L++) {
         nl[L]=n;
-		for(i=0;L-k[i]>Lmin && i<kmax;i++) {
+		for(i=0;(L-k[i]>Lmin) && (i<kmax);i++) {
 			if(i==kmax-1 && L1_long==-1)
 				L1_long=n;
-            if(i>MAX_k || L-k[i]-1>Lmax)
-                throw std::domain_error("Incorrect array index");
 			nlk[L][i]=n-nl[L-k[i]-1];
 			for(j=nl[L-k[i]-1];j<nl[L-k[i]] && n<=N;j++,n++) {
-				seq=0xFFFF>>(16-k[i]);
+				seq=(((uint64_t)1<<Lmax)-1)>>(Lmax-k[i]);
 				rmd.push_back((rmd[j]<<(k[i]+1))|seq);
 			}
 		}
@@ -36,7 +34,7 @@ int seq=0,s=0;
 				rmd.push_back((rmd[j]<<1)|1);
 		}
 		if(t<kmax && L-1!=k[t]) {
-			rmd.push_back((1<<(L-1))-1);
+			rmd.push_back(((uint64_t)1<<(L-1))-1);
 			n++;
 		} else
 			t++;

@@ -102,9 +102,14 @@ int ArithmeticEncoderReplacement::encode() {
 	std::string word;
 	try {
         text->text_rewind();
+        cout<<"10KB words processed: ";
+        int size=0;
 		while(! text->eof()) {
 			word=text->get_word();
 			write(word);
+            if(size%10000==9999)
+                cout<<int((size+1)/10000)<<" ";
+            size++;
     	}
 		finish();  // Flush remaining code bits
 		cout<<"Arithmetic encoding completed ";

@@ -19,7 +19,6 @@ double pi;
 string word;
 int size=0,i=0;
     // Create the map <word,frequency> - wf_map
-    cout<<"10KB words processed: ";
 	while ( ! buffer.eof() ) {
 		buffer>>word;
 		if(wf_map.find(word)!=wf_map.end()) {
@@ -28,8 +27,6 @@ int size=0,i=0;
 			wf_map.insert(make_pair(word,1));
 		}
 		size++;
-		if(size%10000==9999)
-			cout<<int((size+1)/10000)<<" ";
 	}
 	cout<<endl<<"Input file processed. <word,frequency> map buit.\n";
 	// Create the multimap <frequency,word> consisting all different words - freq_rmd
@@ -69,7 +66,7 @@ multimap<int,string> :: iterator it1;
 	}
 	rmd_map_sorted.insert(make_pair(it1->second,i));
 	Dict_rmd.push_back(it1->second);
-	cout<<"<word,index> map built. Words in text: "<<diff_words<<". Entropy H0="<<(int)entropy/8<<" bytes."<<endl;
+	cout<<"<word,index> map built. Different words in text: "<<diff_words<<". Entropy H0="<<(int)entropy/8<<" bytes."<<endl;
 
 	return size;
 }
@@ -123,7 +120,7 @@ string word;
     cout<<endl<<"Dictionary output to the file "<<fname<<endl;
 }
 
-vector<uint64_t> WordBasedText::calc_f_deltas(int b) {
+vector<uint64_t> WordTextReplacement::calc_f_deltas(int b) {
     vector<uint64_t> Freq_deltas;
     Freq_deltas.push_back(b);
     Freq_deltas.push_back(Frequencies[0]);
@@ -144,9 +141,9 @@ vector<uint64_t> WordBasedText::calc_f_deltas(int b) {
     return Freq_deltas;
 }
 
-void WordBasedText::CompressFrequencyTable(RMD r,string fname) {
+void WordTextReplacement::CompressFrequencyTable(RMD r,string fname) {
     int deltas_min=1000000,deltas_minN;
-    for(int N=NFreq/2-20;N<NFreq/2+20;N++) {
+    for(int N=NFreq*0.4;N<NFreq*0.6;N++) {
         vector<uint64_t> f=calc_f_deltas(N);
         int bit_size=r.encode_rmd(f);
         if(bit_size<deltas_min) {
@@ -161,7 +158,7 @@ void WordBasedText::CompressFrequencyTable(RMD r,string fname) {
     r.rmd_to_file(fname);
 }
 
-void WordBasedText::EncodeFrequencyTable(RMD r,string fname) {
+void WordBasedText::CompressFrequencyTable(RMD r,string fname) {
 vector<uint64_t> freqs_sorted;
      for(auto it=wf_map.begin();it!=wf_map.end();it++)
         freqs_sorted.push_back(it->second-1);
