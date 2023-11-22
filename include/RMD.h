@@ -10,7 +10,7 @@ using namespace std;
 class RMD
 {
     public:
-        RMD(vector<int>,int,int);
+        RMD(vector<int>,int);
         virtual ~RMD();
         int encode_rmd(vector<uint64_t>);
         void code_output(int);
