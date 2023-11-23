@@ -29,7 +29,7 @@ file.txt.enc - word-based forward, compressed using the arithmetic encoder;
 
 file.txt.frq - list of frequencies of lexicographically sorted words;
 
-sorted_dic_file.txt - the lexicographically sorted dictionary (list of unique words from the source text file).
+dic_file.txt - the lexicographically sorted dictionary (list of unique words from the source text file).
 
 **[option2] = -e**
 
