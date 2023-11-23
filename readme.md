@@ -7,7 +7,7 @@ g++ *.cpp -o forward
 
 forward <file.txt> [option1] [option2]
 
-[option1] = -r | -f
+**[option1] = -r | -f**
 
 -r  -  Word-based forward compression + low frequency word replacement and frequency table compression.
 
@@ -31,6 +31,6 @@ file.txt.frq - list of frequencies of lexicographically sorted words;
 
 sorted_dic_file.txt - the lexicographically sorted dictionary (list of unique words from the source text file).
 
-[option2] = -e
+**[option2] = -e**
 
 If option2 exists, instead of arithmetic encoding, the entropy will be calculated and displayed. file.txt.enc won't be created. With this option, large files are processed times faster.
