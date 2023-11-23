@@ -15,7 +15,7 @@ forward <file.txt> [option1] [option2]
 
 **Outputs:**
 
-[-r]
+-r
 
 file.txt.enc - word-based forward with low frequency word replacement, compressed using the arithmetic encoder;
 
@@ -23,7 +23,7 @@ file.txt.frq - compressed frequency table;
 
 dic_file.txt - the dictionary (list of unique words from the source text file), ordered by descending frequencies; groups of low-frequency words are second-level ordered by the first occurrence in the text.
 
-[-f]
+-f
 
 file.txt.enc - word-based forward, compressed using the arithmetic encoder;
 
