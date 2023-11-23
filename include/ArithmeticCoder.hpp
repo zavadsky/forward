@@ -194,6 +194,10 @@ class ArithmeticEncoder : private ArithmeticCoderBase {
 
 	public: void writeBit(uint64_t);
 
+	public: virtual double emulate(){};
+
+	public: virtual int encode(){};
+
 };
 
 

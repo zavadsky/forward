@@ -20,22 +20,23 @@ class WordBasedText
         WordBasedText(string);
         virtual ~WordBasedText();
         int word_frequences();
-        void output_dic_sorted(string);
+        virtual void output_dic(string);
         map<string,int> wf_map;
         void text_rewind(){buffer.clear(std::stringstream::goodbit); buffer.seekg(0);};
         bool eof(){return buffer.eof();};
         string get_word();
-        void CompressFrequencyTable(RMD,string);
+        virtual void CompressFrequencyTable(RMD,string);
         int getMaxSymb(){return diff_words;};
         map<string,int> rmd_map_sorted; // The map <word; number in the list, ordered by frequency>
         vector<uint64_t> Frequencies;
 
     protected:
-        int diff_words=0,MaxF=0;
+        int MaxF=0;
         int wordsF[maxRsize];
         multimap<int,string> freq_rmd;
         vector<int> DiffFreq;
         int NFreq;
+        int diff_words=0;
 
     private:
         stringstream buffer;

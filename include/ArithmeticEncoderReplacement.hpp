@@ -13,7 +13,7 @@ using namespace std;
 
 class ArithmeticEncoderReplacement : public ArithmeticEncoder {
 private:
-    map<string,int> word_symb_map;
+    map<string,int> word_symb_map; // mapping words to integer symbols used in arithmetic encoding
     map<string,int> replace_map;
     map<string,bool> first_occurrence;
     SimpleFrequencyTable* freqs;
@@ -22,6 +22,7 @@ private:
 public:
     ArithmeticEncoderReplacement(WordTextReplacement*,BitOutputStream&);
     int encode();
+    double emulate();
 };
 
 class ArithmeticEncoderForward : public ArithmeticEncoder {
@@ -31,4 +32,5 @@ private:
 public:
     ArithmeticEncoderForward(WordBasedText*,BitOutputStream&);
     int encode();
+    double emulate();
 };
