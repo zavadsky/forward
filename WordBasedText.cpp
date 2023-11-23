@@ -71,7 +71,7 @@ multimap<int,string> :: iterator it1;
 	return size;
 }
 
-void WordBasedText::output_dic_sorted(string fname) {
+void WordBasedText::output_dic(string fname) {
 ofstream ofile(fname);
     for(auto it=wf_map.begin();it!=wf_map.end();it++)
         ofile<<it->first<<" ";

@@ -52,6 +52,32 @@ int ArithmeticEncoderForward::encode() {
 	}
 }
 
+double ArithmeticEncoderForward::emulate() {
+std::string word;
+double ent=0;
+	int maxSymbol=text->getMaxSymb();
+	try {
+        text->text_rewind();
+		while(! text->eof()) {
+			word=text->get_word();
+            if(word!="") {
+             	int symbol=text->rmd_map_sorted[word];
+                if (symbol == std::char_traits<char>::eof())
+                    break;
+                if (!(0 <= symbol && symbol <= maxSymbol))
+                    throw std::logic_error("Assertion error");
+                ent-=(long double)log2(freqs->probability(symbol));
+                freqs->decrement(static_cast<uint32_t>(symbol));
+            }
+		}
+		printf("Forward entropy=%.2f bytes.\n",ent/8);
+        return ent;
+	} catch (const char *msg) {
+		std::cerr << msg << std::endl;
+		return EXIT_FAILURE;
+	}
+}
+
 void ArithmeticEncoderReplacement::write(string word) {
 int symbol;
     if(word=="")
@@ -65,19 +91,20 @@ int symbol;
     first_occurrence[word]=0;
 }
 
+
 ArithmeticEncoderReplacement::ArithmeticEncoderReplacement(WordTextReplacement* w,BitOutputStream &out):
     ArithmeticEncoder(32, out) {
-map<int,int> K;
+map<int,int> K; // <frequency, number of words of this frequency> map
 int i=0;
 vector<uint64_t> repl_freq;
     for(auto it=w->wf_map.begin();it!=w->wf_map.end();it++) {
-        first_occurrence.insert(make_pair(it->first,1));
-        if(w->R.find(it->second)==w->R.end()) {
+        first_occurrence.insert(make_pair(it->first,1)); // set flags denoting first occurrences of words
+        if(w->R.find(it->second)==w->R.end()) { // if a word is not to be replaced
             repl_freq.push_back(it->second);
             word_symb_map.insert(make_pair(it->first,i));
             i++;
         } else {
-            if(it->second>1) {
+            if(it->second>1) { // if a word is to be replaced, but occurs more than once
                 repl_freq.push_back(it->second-1);
                 word_symb_map.insert(make_pair(it->first,i));
                 i++;
@@ -90,7 +117,7 @@ vector<uint64_t> repl_freq;
         }
     }
     for(auto it=replace_map.begin();it!=replace_map.end();it++)
-        it->second+=i;
+        it->second+=i; // i is the number of words that appear in word_symb_map (words of frequency > 1)
     for(auto it=K.begin();it!=K.end();it++)
         repl_freq.push_back(it->second);
     freqs = new SimpleFrequencyTable(repl_freq);
@@ -119,4 +146,36 @@ int ArithmeticEncoderReplacement::encode() {
 		std::cerr << msg << std::endl;
 		return EXIT_FAILURE;
 	}
+}
+
+
+double ArithmeticEncoderReplacement::emulate() {
+std::string word;
+double ent=0;
+int symbol;
+	try {
+        text->text_rewind();
+        cout<<"100KB words processed: ";
+        int size=0;
+		while(! text->eof()) {
+			word=text->get_word();
+            if(word!="") {
+                if(replace_map.find(word)!=replace_map.end() && first_occurrence[word])
+                    symbol=replace_map[word];
+                else
+                    symbol=word_symb_map[word];
+                ent-=(long double)log2(freqs->probability(symbol));
+                freqs->decrement(static_cast<uint32_t>(symbol));
+                first_occurrence[word]=0;
+            }
+            if(size%100000==99999)
+                cout<<int((size+1)/100000)<<" ";
+            size++;
+		}
+	}   catch (const char *msg) {
+		std::cerr << msg << std::endl;
+		return EXIT_FAILURE;
+	}
+	printf("Forward entropy=%.2f bytes.\n",ent/8);
+	return ent;
 }
