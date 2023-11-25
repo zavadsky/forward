@@ -15,7 +15,6 @@ using namespace std;
 
 class WordBasedText
 {
-    static const int maxRsize=150;
     public:
         WordBasedText(string);
         virtual ~WordBasedText();
@@ -28,19 +27,18 @@ class WordBasedText
         virtual void CompressFrequencyTable(RMD,string);
         int getMaxSymb(){return diff_words;};
         map<string,int> rmd_map_sorted; // The map <word; number in the list, ordered by frequency>
-        vector<uint64_t> Frequencies;
+        vector<uint64_t> Frequencies; // Vector of descending frequencies of all words
 
     protected:
         int MaxF=0;
-        int wordsF[maxRsize];
-        multimap<int,string> freq_rmd;
+        map<int,int> wordsF; // <frequency, number of words of this frequency> map
+        multimap<int,string,greater<int>> freq_rmd;
         vector<int> DiffFreq;
         int NFreq;
         int diff_words=0;
 
     private:
         stringstream buffer;
-        vector<string> Dict_rmd;
         double entropy;
 };
 
