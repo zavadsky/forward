@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
             cout<<"to the file "+ifname+".enc"<<endl;
         }
         bout.finish();
-        w->output_dic("dic_"+ifname); // Print the sorted dictionary to the file
+        w->output_dic("dic_"+ifname); // Print the dictionary to the file
         w->CompressFrequencyTable(*r,ifname+".frq"); // Compress the frequency table and print it to the file
     }
 	system("pause");

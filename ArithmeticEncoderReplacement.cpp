@@ -34,7 +34,7 @@ int ArithmeticEncoderForward::encode() {
 			word=text->get_word();
             if(word=="")
                 break;
-			int symbol=text->rmd_map_sorted[word];
+			int symbol=text->word_symbol[word];
             if (symbol == std::char_traits<char>::eof())
                 break;
             if (!(0 <= symbol && symbol <= maxSymbol))
@@ -61,7 +61,7 @@ double ent=0;
 		while(! text->eof()) {
 			word=text->get_word();
             if(word!="") {
-             	int symbol=text->rmd_map_sorted[word];
+             	int symbol=text->word_symbol[word];
                 if (symbol == std::char_traits<char>::eof())
                     break;
                 if (!(0 <= symbol && symbol <= maxSymbol))
@@ -94,10 +94,9 @@ int symbol;
 
 ArithmeticEncoderReplacement::ArithmeticEncoderReplacement(WordTextReplacement* w,BitOutputStream &out):
     ArithmeticEncoder(32, out) {
-map<int,int> K; // <frequency, number of words of this frequency> map
 int i=0;
-vector<uint64_t> repl_freq;
-    for(auto it=w->wf_map.begin();it!=w->wf_map.end();it++) {
+vector<uint64_t> repl_freq; // list of all symbol frequencies
+    for(auto it=w->word_freq.begin();it!=w->word_freq.end();it++) {
         first_occurrence.insert(make_pair(it->first,1)); // set flags denoting first occurrences of words
         if(w->R.find(it->second)==w->R.end()) { // if a word is not to be replaced
             repl_freq.push_back(it->second);
@@ -110,20 +109,17 @@ vector<uint64_t> repl_freq;
                 i++;
             }
             replace_map.insert(make_pair(it->first,it->second-1));
-            if(K.find(it->second-1) != K.end())
-                K[it->second-1]++;
-            else
-                K.insert(make_pair(it->second-1,1));
         }
     }
     for(auto it=replace_map.begin();it!=replace_map.end();it++)
         it->second+=i; // i is the number of words that appear in word_symb_map (words of frequency > 1)
-    for(auto it=K.begin();it!=K.end();it++)
-        repl_freq.push_back(it->second);
+    for(auto it=w->R.begin();it!=w->R.end();it++)
+        repl_freq.push_back(w->freq_freq[*it]);
     freqs = new SimpleFrequencyTable(repl_freq);
     text=w;
     cout<<endl<<"Arithmetic encoder with replacement initialized."<<endl;
 }
+
 
 int ArithmeticEncoderReplacement::encode() {
 	std::string word;
