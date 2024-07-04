@@ -7,6 +7,7 @@ Run:
 forward <text file name> <th_f alphanumeric> <th_g alphanumeric> <th_f punctuation> <th_g punctuation> [poetry|bks]
 
 Alphanumeric and non-alphanumeric (punctuation) word sequences are compressed separately.
+
 <th_f alphanumeric> - the threshold th_f value for the alphanumeric stream
 
 <th_g alphanumeric> - the threshold th_g value for the non-alphanumeric stream 
